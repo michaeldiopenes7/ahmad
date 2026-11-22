@@ -67,30 +67,25 @@ function Services() {
   );
 }
 
+const CONTACT_EMAIL = 'ahmadsalihuddin96@gmail.com';
+
 function Contact() {
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [msg, setMsg] = useState('');
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
+  // No backend: opens the visitor's email app with the message pre-filled.
+  function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = e.currentTarget;
-    const body = Object.fromEntries(new FormData(form));
-    setStatus('sending');
-    try {
-      const r = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(data.error ?? `HTTP ${r.status}`);
-      form.reset();
-      setStatus('sent');
-      setMsg('Thanks. I will reply within two working days.');
-    } catch (err) {
-      setStatus('error');
-      setMsg((err as Error).message);
+    const f = new FormData(e.currentTarget);
+    const name = String(f.get('name') ?? '').trim();
+    const message = String(f.get('message') ?? '').trim();
+    if (!name || !message) {
+      setMsg('Please add your name and a message.');
+      return;
     }
+    const subject = `Project enquiry from ${name}`;
+    const body = `${message}\n\n${name}`;
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setMsg('Opening your email app…');
   }
 
   return (
@@ -103,26 +98,19 @@ function Contact() {
           <br />
           something <em>round</em>.
         </h2>
+        <a className="contact__mail" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
         <form className="form" onSubmit={submit} noValidate>
-          <label>
+          <label className="form__wide">
             <span>Name</span>
             <input name="name" required autoComplete="name" />
-          </label>
-          <label>
-            <span>Email</span>
-            <input name="email" type="email" required autoComplete="email" />
           </label>
           <label className="form__wide">
             <span>What are you working on?</span>
             <textarea name="message" rows={4} required />
           </label>
           <div className="form__foot">
-            <button className="btn" disabled={status === 'sending'}>
-              {status === 'sending' ? 'Sending…' : 'Send message'}
-            </button>
-            <p role="status" className={`form__msg ${status === 'error' ? 'is-err' : ''}`}>
-              {msg}
-            </p>
+            <button className="btn">Send message</button>
+            <p role="status" className="form__msg">{msg}</p>
           </div>
         </form>
       </div>
