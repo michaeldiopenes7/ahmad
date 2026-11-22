@@ -1,0 +1,57 @@
+[
+  {
+    "id": "web",
+    "label": "Digital platforms",
+    "desc": "Websites, customer portals and mobile apps designed around how your customers book, buy and sign in, then maintained by the person who built them.",
+    "tags": [
+      "Business websites",
+      "Customer portals",
+      "Mobile apps",
+      "Ongoing maintenance"
+    ]
+  },
+  {
+    "id": "ops",
+    "label": "Business systems",
+    "desc": "Leads, sales and service in one system. I set up or migrate your CRM, connect your POS and existing tools, and automate the follow-ups that slip through.",
+    "tags": [
+      "CRM setup",
+      "System integrations",
+      "Workflow automation",
+      "BI dashboards"
+    ]
+  },
+  {
+    "id": "ai",
+    "label": "Applied AI",
+    "desc": "Assistants that answer from your own documents, process invoices and forms, and draft replies for your inbox, with a person approving what goes out.",
+    "tags": [
+      "Knowledge assistants",
+      "Document processing",
+      "Support copilots",
+      "AI management"
+    ]
+  },
+  {
+    "id": "grow",
+    "label": "Brand and demand",
+    "desc": "Identity, messaging and search visibility that make you easy to find and easy to choose, measured by enquiries, not vanity metrics.",
+    "tags": [
+      "Brand identity",
+      "SEO and content",
+      "Website audits",
+      "Conversion improvement"
+    ]
+  },
+  {
+    "id": "make",
+    "label": "Immersive media",
+    "desc": "Product models, short brand films and playable prototypes, made by me, so assets go live on your site without a hand-off.",
+    "tags": [
+      "3D product models",
+      "Motion video",
+      "Brand animation",
+      "Game prototypes"
+    ]
+  }
+]

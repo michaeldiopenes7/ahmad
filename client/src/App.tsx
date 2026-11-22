@@ -1,0 +1,234 @@
+import { useEffect, useState, type FormEvent } from 'react';
+
+type Service = { id: string; label: string; desc: string; tags: string[] };
+
+// Copy marked EDIT is placeholder text to confirm with Ahmad before launch.
+const PROFILE = {
+  name: 'Ahmad',
+  role: 'Independent designer & developer', // EDIT
+  location: 'Based in Southeast Asia, working worldwide', // EDIT
+  intro:
+    'I build the digital side of a business: the site customers land on, the systems behind it, and the media that makes both worth looking at. One person, start to finish.', // EDIT
+};
+
+const PROCESS = [
+  { k: 'Listen', d: 'We sit down and look at how customers find you, buy from you and get stuck. No deck, just your numbers and your inbox.' },
+  { k: 'Shape', d: 'One plan with a fixed scope, a date and a price. You see screens and prototypes, not documents about screens.' },
+  { k: 'Build', d: 'I design, build and produce the media myself, so nothing gets lost in a hand-off. Weekly demos on the real thing.' },
+  { k: 'Stay', d: 'After launch I keep it running, measure what changed and improve the parts that matter.' },
+];
+
+function Sphere({ tone, className }: { tone: 'chrome' | 'black'; className?: string }) {
+  return <span aria-hidden className={`sphere sphere--${tone} ${className ?? ''}`} />;
+}
+
+function useServices() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    fetch('/api/services')
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then(setServices)
+      .catch((e: Error) => setError(e.message));
+  }, []);
+  return { services, error };
+}
+
+function Services() {
+  const { services, error } = useServices();
+  const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => {
+    if (services.length && open === null) setOpen(services[0].id);
+  }, [services, open]);
+
+  return (
+    <section className="section" id="work" aria-labelledby="work-h">
+      <header className="section__head">
+        <p className="eyebrow">01 — What I do</p>
+        <h2 id="work-h" className="display-sm">Five disciplines, one person.</h2>
+      </header>
+      {error && <p role="alert" className="muted">Could not load services ({error}).</p>}
+      <ol className="services">
+        {services.map((s, i) => {
+          const isOpen = open === s.id;
+          return (
+            <li key={s.id} className={`svc ${isOpen ? 'is-open' : ''}`}>
+              <button
+                className="svc__row"
+                aria-expanded={isOpen}
+                aria-controls={`svc-${s.id}`}
+                onClick={() => setOpen(isOpen ? null : s.id)}
+              >
+                <span className="svc__num">{String(i + 1).padStart(2, '0')}</span>
+                <span className="svc__label">{s.label}</span>
+                <Sphere tone={isOpen ? 'chrome' : 'black'} className="svc__dot" />
+              </button>
+              <div id={`svc-${s.id}`} className="svc__body" hidden={!isOpen}>
+                <p>{s.desc}</p>
+                <ul className="tags">
+                  {s.tags.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+function Contact() {
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [msg, setMsg] = useState('');
+
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const body = Object.fromEntries(new FormData(form));
+    setStatus('sending');
+    try {
+      const r = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error ?? `HTTP ${r.status}`);
+      form.reset();
+      setStatus('sent');
+      setMsg('Thanks. I will reply within two working days.');
+    } catch (err) {
+      setStatus('error');
+      setMsg((err as Error).message);
+    }
+  }
+
+  return (
+    <section className="contact" id="contact" aria-labelledby="contact-h">
+      <Sphere tone="chrome" className="contact__orb" />
+      <div className="contact__inner">
+        <p className="eyebrow eyebrow--inv">03 — Contact</p>
+        <h2 id="contact-h" className="display">
+          Let’s make
+          <br />
+          something <em>round</em>.
+        </h2>
+        <form className="form" onSubmit={submit} noValidate>
+          <label>
+            <span>Name</span>
+            <input name="name" required autoComplete="name" />
+          </label>
+          <label>
+            <span>Email</span>
+            <input name="email" type="email" required autoComplete="email" />
+          </label>
+          <label className="form__wide">
+            <span>What are you working on?</span>
+            <textarea name="message" rows={4} required />
+          </label>
+          <div className="form__foot">
+            <button className="btn" disabled={status === 'sending'}>
+              {status === 'sending' ? 'Sending…' : 'Send message'}
+            </button>
+            <p role="status" className={`form__msg ${status === 'error' ? 'is-err' : ''}`}>
+              {msg}
+            </p>
+          </div>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+export default function App() {
+  return (
+    <>
+      <nav className="nav">
+        <a href="#top" className="nav__mark">
+          <Sphere tone="black" /> {PROFILE.name}
+        </a>
+        <div className="nav__links">
+          <a href="#work">Work</a>
+          <a href="#approach">Approach</a>
+          <a href="#contact" className="nav__cta">Say hello</a>
+        </div>
+      </nav>
+
+      <main id="top">
+        <section className="hero">
+          <div className="hero__light" aria-hidden />
+          <Sphere tone="chrome" className="float f1" />
+          <Sphere tone="black" className="float f2" />
+          <Sphere tone="chrome" className="float f3" />
+
+          <div className="hero__top">
+            <p className="eyebrow">{PROFILE.role}</p>
+            <p className="eyebrow">{PROFILE.location}</p>
+          </div>
+
+          <h1 className="hero__name">
+            {PROFILE.name}
+            <span className="hero__dot" aria-hidden>.</span>
+          </h1>
+
+          <div className="hero__grid">
+            <div className="hero__intro">
+              <p className="lede">{PROFILE.intro}</p>
+              <div className="hero__actions">
+                <a href="#contact" className="btn">Start a project</a>
+                <a href="#work" className="btn btn--ghost">See services</a>
+              </div>
+            </div>
+
+            <figure className="hero__photo">
+              <img src="/ahmad.jpg" alt="Ahmad sitting cross-legged, holding a silver sphere, in a grey studio" width={1024} height={1536} />
+            </figure>
+
+            <ol className="hero__list" aria-label="Disciplines">
+              {['Websites & apps', 'Business systems', 'Applied AI', 'Brand & demand', '3D & motion'].map((d, i) => (
+                <li key={d}><span>{String(i + 1).padStart(2, '0')}</span>{d}</li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <div className="marquee" aria-hidden>
+          <div className="marquee__track">
+            {Array.from({ length: 2 }).map((_, n) => (
+              <span key={n}>
+                Websites <i /> Systems <i /> Applied AI <i /> Brand <i /> 3D &amp; motion <i />
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <Services />
+
+        <section className="section" id="approach" aria-labelledby="approach-h">
+          <header className="section__head">
+            <p className="eyebrow">02 — Approach</p>
+            <h2 id="approach-h" className="display-sm">One person. Whole picture.</h2>
+          </header>
+          <ol className="process">
+            {PROCESS.map((p, i) => (
+              <li key={p.k}>
+                <Sphere tone={i % 2 ? 'black' : 'chrome'} className="process__orb" />
+                <h3>{p.k}</h3>
+                <p>{p.d}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <Contact />
+      </main>
+
+      <footer className="footer">
+        <span>© {new Date().getFullYear()} {PROFILE.name}</span>
+        <span>Designed and built by Ahmad</span>
+      </footer>
+    </>
+  );
+}
