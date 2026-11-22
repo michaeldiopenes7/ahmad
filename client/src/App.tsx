@@ -184,7 +184,7 @@ export default function App() {
 
         <div className="marquee" aria-hidden>
           <div className="marquee__track">
-            {Array.from({ length: 2 }).map((_, n) => (
+            {Array.from({ length: 6 }).map((_, n) => (
               <span key={n}>
                 Websites <i /> Systems <i /> Applied AI <i /> Brand <i /> 3D &amp; motion <i />
               </span>

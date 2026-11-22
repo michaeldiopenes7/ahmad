@@ -155,7 +155,7 @@ a { color: inherit; }
 
 /* Marquee */
 .marquee { overflow: hidden; border-block: 1px solid var(--line); background: var(--paper); }
-.marquee__track { display: flex; width: max-content; animation: slide 30s linear infinite; }
+.marquee__track { display: flex; width: max-content; animation: slide 90s linear infinite; }
 .marquee__track span {
   display: flex; align-items: center; gap: 28px; padding: 18px 14px;
   font: italic 400 clamp(26px, 3vw, 40px)/1 var(--serif); white-space: nowrap;
