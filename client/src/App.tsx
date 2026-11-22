@@ -1,6 +1,11 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
+
+import servicesData from '../../server/data/services.json';
 
 type Service = { id: string; label: string; desc: string; tags: string[] };
+
+// Bundled at build time (same file the API serves), so the page never waits on the server for it.
+const SERVICES: Service[] = servicesData;
 
 // Copy marked EDIT is placeholder text to confirm with Ahmad before launch.
 const PROFILE = {
@@ -22,24 +27,8 @@ function Sphere({ tone, className }: { tone: 'chrome' | 'black'; className?: str
   return <span aria-hidden className={`sphere sphere--${tone} ${className ?? ''}`} />;
 }
 
-function useServices() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    fetch('/api/services')
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then(setServices)
-      .catch((e: Error) => setError(e.message));
-  }, []);
-  return { services, error };
-}
-
 function Services() {
-  const { services, error } = useServices();
-  const [open, setOpen] = useState<string | null>(null);
-  useEffect(() => {
-    if (services.length && open === null) setOpen(services[0].id);
-  }, [services, open]);
+  const [open, setOpen] = useState<string | null>(SERVICES[0]?.id ?? null);
 
   return (
     <section className="section" id="work" aria-labelledby="work-h">
@@ -47,9 +36,8 @@ function Services() {
         <p className="eyebrow">01 — What I do</p>
         <h2 id="work-h" className="display-sm">Five disciplines, one person.</h2>
       </header>
-      {error && <p role="alert" className="muted">Could not load services ({error}).</p>}
       <ol className="services">
-        {services.map((s, i) => {
+        {SERVICES.map((s, i) => {
           const isOpen = open === s.id;
           return (
             <li key={s.id} className={`svc ${isOpen ? 'is-open' : ''}`}>
